@@ -27,9 +27,7 @@ protocol HTTPClient {
 
 class RemoteFeedLoaderTests: XCTestCase {
     func test_init_doesNotRequestFromURL() {
-        let url = URL(string: "Https://a-nogivenurl.com")!
-
-        let (_, client) = makeSUT(url: url)
+        let (_, client) = makeSUT()
 
         XCTAssertNil(client.requestedURL)
     }
