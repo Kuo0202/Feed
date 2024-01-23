@@ -5,8 +5,8 @@
 //  Created by Peter Kuo on 2024/1/22.
 //
 
-import XCTest
 import Feed
+import XCTest
 
 class RemoteFeedLoaderTests: XCTestCase {
     func test_init_doesNotRequestFromURL() {
@@ -20,10 +20,10 @@ class RemoteFeedLoaderTests: XCTestCase {
         let (sut, client) = makeSUT(url: url)
 
         sut.load()
-        
+
         XCTAssertEqual(client.requestedURLs, [url])
     }
-    
+
     func test_loadTwice_requestsDataFromURL() {
         let url = URL(string: "Https://a-givenurl.com")!
         let (sut, client) = makeSUT(url: url)
@@ -32,6 +32,17 @@ class RemoteFeedLoaderTests: XCTestCase {
         sut.load()
 
         XCTAssertEqual(client.requestedURLs, [url, url])
+    }
+
+    func test_load_deliverErrorOnClientError() {
+        let (sut, client) = makeSUT()
+        client.error = NSError(domain: "Test", code: 0)
+        var capturedError: RemoteFeedLoader.Error?
+        sut.load { error in
+            capturedError = error
+        }
+
+        XCTAssertEqual(capturedError, .conectivity)
     }
 
     // Helpers
@@ -44,8 +55,12 @@ class RemoteFeedLoaderTests: XCTestCase {
 
     private class HTTPClientSpy: HTTPClient {
         var requestedURLs = [URL]()
-        
-        func get(from url: URL) {
+        var error: Error?
+
+        func get(from url: URL, completion: @escaping (Error) -> Void) {
+            if let error = error {
+                completion(error)
+            }
             requestedURLs.append(url)
         }
     }
