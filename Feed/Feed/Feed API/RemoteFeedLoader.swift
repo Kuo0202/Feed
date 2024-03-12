@@ -80,7 +80,6 @@ private enum FeedItemMapper {
         guard response.statusCode == 200 else {
             throw RemoteFeedLoader.Error.invalidData
         }
-
         let root = try JSONDecoder().decode(Root.self, from: data).items
         return root.map { $0.item }
     }
